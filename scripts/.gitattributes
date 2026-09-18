@@ -1,0 +1,3 @@
+# .ps1 は BOM 付き UTF-8 でなければ Windows PowerShell 5.1 が CP932 として読み、日本語が化けて構文エラーになる
+*.ps1 text working-tree-encoding=UTF-8 eol=crlf
+*.bat text eol=crlf

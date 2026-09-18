@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     LINEスタンプ用に画像を 370x320 へ一括リサイズします。
 
@@ -117,8 +117,8 @@ for ($i = $From; $i -le $To; $i++) {
         $canvas.Save($outPath, [System.Drawing.Imaging.ImageFormat]::Png)
 
         $sizeKB = [Math]::Round((Get-Item -LiteralPath $outPath).Length / 1KB, 1)
-        Write-Host ("No.{0,-2} {1,5}x{2,-5} -> {3}x{4} (中身 {5}x{6}, {7} KB)" -f `
-            $i, $src.Width, $src.Height, $Width, $Height, $drawW, $drawH, $sizeKB)
+        $message = "No.{0,-2} {1,5}x{2,-5} -> {3}x{4} (中身 {5}x{6}, {7} KB)" -f $i, $src.Width, $src.Height, $Width, $Height, $drawW, $drawH, $sizeKB
+        Write-Host $message
 
         $converted++
     }
