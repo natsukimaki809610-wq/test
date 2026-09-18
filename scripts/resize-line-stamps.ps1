@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    LINEスタンプ用に画像を 370x320 へ一括リサイズします。
+    LINEスタンプ用に画像をリサイズします (既定 370x320)。
 
 .DESCRIPTION
     指定フォルダ内の 1〜40 番の画像を読み込み、縦横比を保ったまま
@@ -13,6 +13,10 @@
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File .\resize-line-stamps.ps1 -SourceDir "C:\Users\user\ChatGPT\99_その他\LINE\看護師40" -From 1 -To 40
+
+.EXAMPLE
+    # No.1 からメイン画像 (240x240) を main.png として作る
+    powershell -ExecutionPolicy Bypass -File .\resize-line-stamps.ps1 -Width 240 -Height 240 -From 1 -To 1 -OutputName main
 #>
 
 [CmdletBinding()]
@@ -29,8 +33,12 @@ param(
     [int]$From = 1,
     [int]$To   = 40,
 
-    # 元画像が370x320より小さい場合に拡大しない
-    [switch]$NoUpscale
+    # 元画像が指定サイズより小さい場合に拡大しない
+    [switch]$NoUpscale,
+
+    # 出力ファイル名。1枚だけ変換するとき用 (例: main / tab)。
+    # 省略時は番号をそのままファイル名にします (01.png など)。
+    [string]$OutputName
 )
 
 $ErrorActionPreference = 'Stop'
@@ -113,11 +121,18 @@ for ($i = $From; $i -le $To; $i++) {
         $destRect = New-Object System.Drawing.Rectangle($offsetX, $offsetY, $drawW, $drawH)
         $graphics.DrawImage($src, $destRect, 0, 0, $src.Width, $src.Height, [System.Drawing.GraphicsUnit]::Pixel, $attrs)
 
-        $outPath = Join-Path $OutputDir ('{0:D2}.png' -f $i)
+        if ($OutputName) {
+            $leaf = $OutputName
+            if (-not $leaf.ToLower().EndsWith('.png')) { $leaf = "$leaf.png" }
+        }
+        else {
+            $leaf = '{0:D2}.png' -f $i
+        }
+        $outPath = Join-Path $OutputDir $leaf
         $canvas.Save($outPath, [System.Drawing.Imaging.ImageFormat]::Png)
 
         $sizeKB = [Math]::Round((Get-Item -LiteralPath $outPath).Length / 1KB, 1)
-        $message = "No.{0,-2} {1,5}x{2,-5} -> {3}x{4} (中身 {5}x{6}, {7} KB)" -f $i, $src.Width, $src.Height, $Width, $Height, $drawW, $drawH, $sizeKB
+        $message = "No.{0,-3} {1,5}x{2,-5} -> {3,-12} {4}x{5} (中身 {6}x{7}, {8} KB)" -f $i, $src.Width, $src.Height, $leaf, $Width, $Height, $drawW, $drawH, $sizeKB
         Write-Host $message
 
         $converted++

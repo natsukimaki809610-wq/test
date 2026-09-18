@@ -10,10 +10,21 @@
 
 追加インストールは不要です。コマンド入力もいりません。
 
-1. `resize.bat` と `resize-line-stamps.ps1` の **2つとも** 画像の入ったフォルダに置く
-2. `resize.bat` を**ダブルクリック**する
+1. `resize.bat` `main-tab.bat` `resize-line-stamps.ps1` を画像の入ったフォルダに置く
+2. **`resize.bat`** をダブルクリック → スタンプ40枚（370×320）ができる
+3. **`main-tab.bat`** をダブルクリック → 番号を聞かれるので入力 → メイン画像とタブ画像ができる
 
-黒い画面が開いて処理が進み、終わったら何かキーを押して閉じます。
+どちらも出力先は同じ `resized` フォルダです。黒い画面が開いて処理が進み、
+終わったら何かキーを押して閉じます。
+
+`resized` フォルダの中身がそのまま申請用の一式になります。
+
+```
+resized/
+  01.png 〜 40.png   スタンプ    370x320
+  main.png           メイン画像  240x240
+  tab.png            タブ画像    96x74
+```
 
 ## 使い方（PowerShell から直接）
 
@@ -44,6 +55,7 @@ python resize_line_stamps.py --source "C:\Users\user\ChatGPT\99_その他\LINE\�
 | `-OutputDir <path>` | `--output <path>` | 出力先フォルダ（既定: `変換元/resized`） |
 | `-Width` / `-Height` | `--width` / `--height` | 出力サイズ（既定: 370 / 320） |
 | `-From` / `-To` | `--from` / `--to` | 処理する番号の範囲（既定: 1〜40） |
+| `-OutputName <名前>` | `--output-name <名前>` | 出力ファイル名を指定（1枚だけ変換するとき用） |
 | `-NoUpscale` | `--no-upscale` | 元画像が370×320より小さいとき拡大しない |
 
 ## 対応ファイル名
@@ -66,12 +78,20 @@ python resize_line_stamps.py --source "C:\Users\user\ChatGPT\99_その他\LINE\�
 - 1ファイルあたり 1MB 以下
 - 余白は上下左右に10px程度空けることが推奨されています
 
-メイン画像・タブ画像も必要な場合は、同じスクリプトでサイズを指定して作れます:
+メイン画像・タブ画像は `main-tab.bat` をダブルクリックすれば作れます。
+コマンドで直接指定する場合は次の通りです（No.1 の絵を使う例）:
 
 ```powershell
-# メイン画像 (No.1 を使う場合)
-powershell -ExecutionPolicy Bypass -File .\resize-line-stamps.ps1 -Width 240 -Height 240 -From 1 -To 1 -OutputDir .\main
+# メイン画像 -> resized\main.png
+powershell -ExecutionPolicy Bypass -File .\resize-line-stamps.ps1 -Width 240 -Height 240 -From 1 -To 1 -OutputName main
 
-# タブ画像
-powershell -ExecutionPolicy Bypass -File .\resize-line-stamps.ps1 -Width 96 -Height 74 -From 1 -To 1 -OutputDir .\tab
+# タブ画像 -> resized\tab.png
+powershell -ExecutionPolicy Bypass -File .\resize-line-stamps.ps1 -Width 96 -Height 74 -From 1 -To 1 -OutputName tab
 ```
+
+## 文字コードについて（開発者向けメモ）
+
+`resize-line-stamps.ps1` は **BOM付き UTF-8 + CRLF** で保存する必要があります。
+Windows PowerShell 5.1 は BOM の無い `.ps1` をシステムの ANSI コードページ
+（日本語環境では CP932）として読むため、BOM が無いと日本語部分が文字化けし、
+スクリプト全体が構文エラーになります。`.gitattributes` で維持しています。

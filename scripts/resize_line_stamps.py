@@ -67,6 +67,11 @@ def main() -> int:
     parser.add_argument("--from", dest="start", type=int, default=1)
     parser.add_argument("--to", dest="end", type=int, default=40)
     parser.add_argument(
+        "--output-name",
+        default=None,
+        help="出力ファイル名。1枚だけ変換するとき用（例: main / tab）",
+    )
+    parser.add_argument(
         "--no-upscale",
         action="store_true",
         help="元画像が370x320より小さい場合は拡大せず、そのまま中央に配置する",
@@ -94,15 +99,21 @@ def main() -> int:
             print(f"No.{number} の画像が見つかりません（スキップ）")
             continue
 
-        out_path = output_dir / f"{number:02d}.png"
+        if args.output_name:
+            leaf = args.output_name
+            if not leaf.lower().endswith(".png"):
+                leaf += ".png"
+        else:
+            leaf = f"{number:02d}.png"
+        out_path = output_dir / leaf
         orig_w, orig_h, draw_w, draw_h = resize_one(
             src_path, out_path, args.width, args.height, args.no_upscale
         )
         size_kb = out_path.stat().st_size / 1024
 
         print(
-            f"No.{number:<3}{orig_w:>5}x{orig_h:<5} -> {args.width}x{args.height} "
-            f"(中身 {draw_w}x{draw_h}, {size_kb:.1f} KB)"
+            f"No.{number:<3}{orig_w:>5}x{orig_h:<5} -> {leaf:<12} "
+            f"{args.width}x{args.height} (中身 {draw_w}x{draw_h}, {size_kb:.1f} KB)"
         )
         converted += 1
 
