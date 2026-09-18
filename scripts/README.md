@@ -6,13 +6,16 @@
 - 370×320 に収まるまで縮小し、余った部分は**透明**で埋めて、ちょうど 370×320 の PNG にします
 - 元のファイルは変更しません。出力先フォルダに新しく作られます
 
-## 使い方（Windows / PowerShell）
+## 使い方（Windows / いちばん簡単）
 
-追加インストールは不要です。
+追加インストールは不要です。コマンド入力もいりません。
 
-1. `resize-line-stamps.ps1` を画像の入ったフォルダに置く
-2. そのフォルダで右クリック →「ターミナルで開く」（または PowerShell を開く）
-3. 次を実行:
+1. `resize.bat` と `resize-line-stamps.ps1` の **2つとも** 画像の入ったフォルダに置く
+2. `resize.bat` を**ダブルクリック**する
+
+黒い画面が開いて処理が進み、終わったら何かキーを押して閉じます。
+
+## 使い方（PowerShell から直接）
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\resize-line-stamps.ps1
